@@ -7,4 +7,4 @@ script:
 - cd gateway/ && gradle build && cd ../
 - cd book-service/ && gradle build && gradle jacocoTestReport && cd ../
 after_success:
-- cd books-service/ && bash <(curl -s https://codecov.io/bash)
+- cd book-service/ && bash <(curl -s https://codecov.io/bash)
