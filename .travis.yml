@@ -1,4 +1,8 @@
 language: java
 jdk:
 - oraclejdk8
-script: cd discovery/ && gradle build && cd ../
+script:
+- cd config/ && gradle build && cd ../ 
+- cd discovery/ && gradle build && cd ../
+- cd gateway/ && gradle build && cd ../
+- cd book-service/ && gradle build && cd ../

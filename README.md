@@ -1,3 +1,6 @@
+### Status
+[![Build Status](https://travis-ci.org/rgavrysh/spring-cloud.png?branch=master)](https://travis-ci.org/rgavrysh/spring-cloud)
+
 # Spring-Cloud POC
 
 This project is based on Baeldung article, and shows the simplest example how to build multiservice cloud based application.
@@ -10,5 +13,5 @@ It consist of 5 different parts:
 
 The next step would be:
 - containerize application
-- travic build
+- travis build
 - authorization
