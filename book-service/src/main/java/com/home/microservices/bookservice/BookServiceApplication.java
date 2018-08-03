@@ -18,23 +18,23 @@ import java.util.List;
 @RequestMapping("/books")
 public class BookServiceApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(BookServiceApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(BookServiceApplication.class, args);
+    }
 
-	private List<Book> books = Arrays.asList(
-					new Book(1L, "Origin", "Dan Brown"),
-					new Book(2L, "Inception", "Dan Brown"),
-					new Book(3L, "It", "Stephen King")
-			);
+    private List<Book> books = Arrays.asList(
+            new Book(1L, "Origin", "Dan Brown"),
+            new Book(2L, "Inception", "Dan Brown"),
+            new Book(3L, "It", "Stephen King")
+    );
 
-	@GetMapping("")
-	public List<Book> findAllBooks() {
-		return books;
-	}
+    @GetMapping("")
+    public List<Book> findAllBooks() {
+        return books;
+    }
 
-	@GetMapping("/{bookId}")
-	public Book findBookById(@PathVariable Long bookId) {
-		return books.stream().filter(book -> book.getId().equals(bookId)).findFirst().orElse(null);
-	}
+    @GetMapping("/{bookId}")
+    public Book findBookById(@PathVariable Long bookId) {
+        return books.stream().filter(book -> book.getId().equals(bookId)).findFirst().orElse(null);
+    }
 }
