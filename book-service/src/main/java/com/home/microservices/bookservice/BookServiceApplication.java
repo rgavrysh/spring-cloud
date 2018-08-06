@@ -37,4 +37,5 @@ public class BookServiceApplication {
     public Book findBookById(@PathVariable Long bookId) {
         return books.stream().filter(book -> book.getId().equals(bookId)).findFirst().orElse(null);
     }
+
 }

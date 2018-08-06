@@ -1,0 +1,3 @@
+org.springframework.context.ApplicationContextInitializer=com.home.microservices.bookservice.conf.PortConfiguration
+
+org.springframework.boot.env.EnvironmentPostProcessor=com.home.microservices.bookservice.conf.EnvironmentPortConfigurationPostProcessor
