@@ -16,9 +16,6 @@ public class EnvironmentPortConfigurationPostProcessor implements EnvironmentPos
         if (port > maxSupportedPort) {
             throw new RuntimeException("Trying to run on port : " + port + ". " +
                     "This service can not be run on port higher than " + maxSupportedPort);
-        } else if (port == -1) {
-            //for test purpose
-            return;
         }
         System.setProperty("server.port", String.valueOf(getAvailablePort(port)));
         System.out.println("---------------------ENV CUSTOM CONF-------------------------------");
