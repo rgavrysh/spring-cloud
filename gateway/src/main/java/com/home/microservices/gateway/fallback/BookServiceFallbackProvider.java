@@ -51,7 +51,7 @@ public class BookServiceFallbackProvider implements FallbackProvider {
 
         @Override
         public InputStream getBody() throws IOException {
-            return new ByteArrayInputStream("fallback Provider".getBytes());
+            return new ByteArrayInputStream("Fallback Provider".getBytes());
         }
 
         @Override

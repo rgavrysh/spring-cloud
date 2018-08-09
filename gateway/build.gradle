@@ -32,8 +32,11 @@ dependencies {
 	compile('org.springframework.cloud:spring-cloud-starter-eureka')
 	compile('org.springframework.cloud:spring-cloud-starter-zuul')
 	compile('org.springframework.cloud:spring-cloud-starter-hystrix-dashboard')
+	compile('org.springframework.cloud:spring-cloud-starter-ribbon')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
+
+bootRun.systemProperties = System.properties
 
 dependencyManagement {
 	imports {

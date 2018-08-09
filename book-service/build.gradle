@@ -41,6 +41,8 @@ dependencyManagement {
     }
 }
 
+bootRun.systemProperties = System.properties
+
 jacocoTestReport {
     reports {
         xml.enabled true
