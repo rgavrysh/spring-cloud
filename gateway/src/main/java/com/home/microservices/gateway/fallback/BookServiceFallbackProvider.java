@@ -5,30 +5,33 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-@Component
+@Service
 public class BookServiceFallbackProvider implements FallbackProvider {
+
+    private final String bookServiceRoute = "book-service";
+
     @Override
     public ClientHttpResponse fallbackResponse(Throwable cause) {
-        return response;
+        return fallbackResponse;
     }
 
     @Override
     public String getRoute() {
-        return "book-service";
+        return bookServiceRoute;
     }
 
     @Override
     public ClientHttpResponse fallbackResponse() {
-        return response;
+        return fallbackResponse;
     }
 
-    ClientHttpResponse response = new ClientHttpResponse() {
+    ClientHttpResponse fallbackResponse = new ClientHttpResponse() {
         @Override
         public HttpStatus getStatusCode() throws IOException {
             return HttpStatus.OK;
@@ -51,7 +54,8 @@ public class BookServiceFallbackProvider implements FallbackProvider {
 
         @Override
         public InputStream getBody() throws IOException {
-            return new ByteArrayInputStream("Fallback Provider".getBytes());
+            return new ByteArrayInputStream("We can not reach the library at the moment. Please try again later."
+                    .getBytes());
         }
 
         @Override
