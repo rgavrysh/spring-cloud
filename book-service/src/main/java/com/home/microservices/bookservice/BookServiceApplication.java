@@ -5,20 +5,33 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 @EnableEurekaClient
 @RestController
-//@RequestMapping("/books")
+@ManagedResource(objectName = "bean:name=bookService", description = "BookService MBean")
 public class BookServiceApplication {
 
     private static ConfigurableApplicationContext context;
+    private volatile long latency = 100;
+
+    public long getLatency() {
+        return latency;
+    }
+
+    @ManagedOperation(description = "Set latency for getBookById simulating service timeout.")
+    public void setLatency(long latency) {
+        this.latency = latency;
+    }
 
     public static void main(String[] args) {
         context = SpringApplication.run(BookServiceApplication.class, args);
@@ -37,6 +50,11 @@ public class BookServiceApplication {
 
     @GetMapping("/books/{bookId}")
     public Book findBookById(@PathVariable Long bookId) {
+        try {
+            TimeUnit.MILLISECONDS.sleep(latency);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return books.stream().filter(book -> book.getId().equals(bookId)).findFirst().orElse(null);
     }
 
@@ -44,7 +62,7 @@ public class BookServiceApplication {
     public String getIndex() {
         String port = context.getEnvironment().getProperty("server.port");
         StringBuilder sb = new StringBuilder();
-        sb.append("Welcome to library! ");
+        sb.append("Welcome to library!\n");
         sb.append("You are serving by:\t").append(context.getId());
         return sb.toString();
     }

@@ -1,5 +1,6 @@
 package com.home.microservices.gateway.fallback;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ public class BookServiceFallbackProvider implements FallbackProvider {
     private final String bookServiceRoute = "book-service";
 
     @Override
+    @HystrixCommand
     public ClientHttpResponse fallbackResponse(Throwable cause) {
         return fallbackResponse;
     }
@@ -31,7 +33,7 @@ public class BookServiceFallbackProvider implements FallbackProvider {
         return fallbackResponse;
     }
 
-    ClientHttpResponse fallbackResponse = new ClientHttpResponse() {
+    private ClientHttpResponse fallbackResponse = new ClientHttpResponse() {
         @Override
         public HttpStatus getStatusCode() throws IOException {
             return HttpStatus.OK;
