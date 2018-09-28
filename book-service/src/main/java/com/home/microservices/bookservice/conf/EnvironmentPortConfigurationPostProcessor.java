@@ -33,9 +33,7 @@ public class EnvironmentPortConfigurationPostProcessor implements EnvironmentPos
 
     private boolean isPortAvailable(int port) {
         boolean isAvailable = false;
-        try {
-            ServerSocket serverSocket = new ServerSocket(port);
-            serverSocket.close();
+        try(ServerSocket serverSocket = new ServerSocket(port)){
             isAvailable = true;
         } catch (IOException e) {
             System.out.println("Port " + port + " is used.");

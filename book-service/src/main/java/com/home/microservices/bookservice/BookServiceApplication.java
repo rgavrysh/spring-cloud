@@ -15,7 +15,6 @@ import java.util.List;
 @SpringBootApplication
 @EnableEurekaClient
 @RestController
-//@RequestMapping("/books")
 public class BookServiceApplication {
 
     private static ConfigurableApplicationContext context;
@@ -37,6 +36,11 @@ public class BookServiceApplication {
 
     @GetMapping("/books/{bookId}")
     public Book findBookById(@PathVariable Long bookId) {
+        try {
+            java.util.concurrent.TimeUnit.MILLISECONDS.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return books.stream().filter(book -> book.getId().equals(bookId)).findFirst().orElse(null);
     }
 

@@ -11,14 +11,21 @@ public class BookServiceLoadBalancerConfiguration {
     private IClientConfig ribbonClientConfig;
 
     @Autowired
-    private ILoadBalancer loadBalancer;
+    private ILoadBalancer ribbonLoadBalancer;
 
     @Bean
     public IPing ribbonPing(IClientConfig config) {
         return new PingUrl(false, "/");
     }
 
-    public IRule ribbonRule(IClientConfig iClientConfig) {
-        return new RoundRobinRule();
+    @Bean
+    public ServerListFilter ribbonServerListFilter(IClientConfig config) {
+        return new ZoneAffinityServerListFilter<>(config);
+    }
+
+    @Bean
+    public IRule ribbonRule(IClientConfig config) {
+        System.out.println("new random rule");
+        return new RandomRule();
     }
 }
