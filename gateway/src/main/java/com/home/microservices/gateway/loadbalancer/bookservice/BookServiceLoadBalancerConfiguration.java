@@ -26,6 +26,6 @@ public class BookServiceLoadBalancerConfiguration {
     @Bean
     public IRule ribbonRule(IClientConfig config) {
         System.out.println("new random rule");
-        return new RandomRule();
+        return new RoundRobinRule();
     }
 }
