@@ -1,35 +1,38 @@
-version: '2.1'
+version: "2.1"
 services:
   config:
-    image: config:4
+    image: config:1
     ports:
-      - '8083:8083'
+      - "8083:8083"
+    networks:
+      - inet
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8083/config/default"]
       interval: 10s
       timeout: 10s
       retries: 5
   discovery:
-    image: discovery:2
+    image: discovery:1
     depends_on:
       config:
         condition: service_healthy
-    links:
-      - config
+    networks:
+      - inet
     ports:
-      - '8082:8082'
+      - "8082:8082"
   gateway:
-    image: gateway:2
+    image: gateway:1
     ports:
-      - '8080:8080'
+      - "8080:80"
+    networks:
+      - inet
     depends_on:
       - discovery
-    links:
-      - discovery
-      - config
   book-service:
-    image: book-service:3
-    links:
+    image: book-service:1
+    networks:
+      - inet
+    depends_on:
       - discovery
-      - config
-      - gateway
+networks:
+  inet:
