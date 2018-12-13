@@ -34,4 +34,13 @@ public class Rating {
     public void setStars(int stars) {
         this.stars = stars;
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "id=" + id +
+                ", bookId=" + bookId +
+                ", stars=" + stars +
+                '}';
+    }
 }
