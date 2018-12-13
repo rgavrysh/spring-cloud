@@ -15,6 +15,8 @@ public class BookServiceLoadBalancerConfiguration {
 
     @Bean
     public IPing ribbonPing(IClientConfig config) {
+        DummyPing dummyPing = new DummyPing();
+//        return dummyPing;
         return new PingUrl(false, "/");
     }
 
@@ -26,6 +28,6 @@ public class BookServiceLoadBalancerConfiguration {
     @Bean
     public IRule ribbonRule(IClientConfig config) {
         System.out.println("new random rule");
-        return new RoundRobinRule();
+        return new RoundRobinRule(ribbonLoadBalancer);
     }
 }

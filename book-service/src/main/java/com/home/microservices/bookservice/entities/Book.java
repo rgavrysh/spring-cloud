@@ -2,7 +2,7 @@ package com.home.microservices.bookservice.entities;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement
+//@XmlRootElement
 public class Book {
     private Long id;
     private String title;

@@ -1,4 +1,4 @@
-version: "2.1"
+version: "3"
 services:
   config:
     image: config:1
@@ -22,12 +22,16 @@ services:
           restart_policy:
             condition: on-failure
     depends_on:
-      config:
-        condition: service_healthy
+      - config
     networks:
       - inet
     ports:
       - "8082:8082"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
   gateway:
     image: gateway:1
     deploy:
@@ -35,11 +39,16 @@ services:
           restart_policy:
             condition: on-failure
     ports:
-      - "8080:80"
+      - "80:8080"
     networks:
       - inet
     depends_on:
       - discovery
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
   book-service:
     image: book-service:1
     deploy:
@@ -50,5 +59,10 @@ services:
       - inet
     depends_on:
       - discovery
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
 networks:
   inet:

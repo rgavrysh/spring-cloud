@@ -1,20 +1,21 @@
 package com.home.microservices.bookservice;
 
 import com.home.microservices.bookservice.entities.Book;
-import com.home.microservices.bookservice.entities.Books;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.http.MediaType;
+import org.springframework.context.annotation.Bean;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
@@ -22,6 +23,11 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @ManagedResource(objectName = "bean:name=bookService", description = "BookService MBean")
 public class BookServiceApplication {
+
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
+        return restTemplateBuilder.build();
+    }
 
     private static ConfigurableApplicationContext context;
     private volatile long latency = 100;
@@ -45,17 +51,12 @@ public class BookServiceApplication {
             new Book(3L, "It", "Stephen King")
     );
 
-    @RequestMapping(value = "/books", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE,
-            MediaType.TEXT_HTML_VALUE, MediaType.TEXT_XML_VALUE},
-            consumes = MediaType.ALL_VALUE)
-    public Books findAllBooks() {
-        Books books = new Books();
-        books.setBooks(this.books);
+    @GetMapping("/books")
+    public List<Book> findAllBooks() {
         return books;
     }
 
-    @RequestMapping(value = "/books/{bookId}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
-            consumes = MediaType.ALL_VALUE)
+    @GetMapping("/books/{bookId}")
     public Book findBookById(@PathVariable Long bookId) {
         try {
             TimeUnit.MILLISECONDS.sleep(latency);
@@ -65,7 +66,14 @@ public class BookServiceApplication {
         return books.stream().filter(book -> book.getId().equals(bookId)).findFirst().orElse(null);
     }
 
-    @RequestMapping("/home")
+    @GetMapping("/books/{id}/rating")
+    public Integer getBookWithRating(@PathVariable Long id, RestTemplate restTemplate) {
+        Book b = books.stream().filter(book -> book.getId().equals(id)).findFirst().orElseThrow(NoSuchElementException::new);
+        Integer bookRate = restTemplate.getForObject("http://gateway:8080/rating-service/rating/" + id, Integer.class);
+        return bookRate;
+    }
+
+    @GetMapping("/")
     public String getIndex() {
         String port = context.getEnvironment().getProperty("server.port");
         StringBuilder sb = new StringBuilder();
