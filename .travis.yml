@@ -6,5 +6,6 @@ script:
 - cd discovery/ && gradle build && cd ../
 - cd gateway/ && gradle build && cd ../
 - cd book-service/ && gradle build && gradle jacocoTestReport && cd ../
+- cd rating-service/ && gradle build && cd ../
 after_success:
 - bash <(curl -s https://codecov.io/bash)
