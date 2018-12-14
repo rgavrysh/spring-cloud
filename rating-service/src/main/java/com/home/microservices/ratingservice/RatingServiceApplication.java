@@ -1,35 +1,35 @@
 package com.home.microservices.ratingservice;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.home.microservices.ratingservice.entities.BookDTO;
 import com.home.microservices.ratingservice.entities.Rating;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
-import org.springframework.context.annotation.Bean;
-import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @SpringBootApplication
 @EnableEurekaClient
 @RestController
 @RequestMapping("/rating")
+@EnableKafka
 public class RatingServiceApplication {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(RatingServiceApplication.class);
-
-    public static void main(String[] args) {
-        SpringApplication.run(RatingServiceApplication.class, args);
-    }
+    final Logger logger = LoggerFactory.getLogger(RatingServiceApplication.class);
 
     private List<Rating> ratings = Arrays.asList(
             new Rating(1L, 1L, 2),
@@ -37,35 +37,38 @@ public class RatingServiceApplication {
             new Rating(4L, 3L, 5)
     );
 
+    @Autowired
+    private KafkaTemplate kafkaTemplate;
+    @Autowired
+    private ObjectMapper mapper;
+
+    public static void main(String[] args) {
+        SpringApplication.run(RatingServiceApplication.class, args);
+    }
+
     @GetMapping
     public List<Rating> findAllRatings() {
+        logger.info("Return all available ratings.");
         return ratings;
     }
 
     @GetMapping("/{bookId}")
     public Integer findRatingByBookId(@PathVariable Long bookId) {
-        Rating r = ratings.stream().filter(rating -> rating.getBookId().equals(bookId)).findFirst().orElseThrow(NoSuchElementException::new);
-        kafkaTemplate().send("rating", r.toString());
-        return r.getStars();
+        Rating rating = getRating(bookId);
+        logger.info("Found rating {} by book id {}", rating, bookId);
+        return rating.getStars();
     }
 
-    @Bean
-    Map<String, Object> producerConfigs() {
-        HashMap<String, Object> configs = new HashMap<>();
-        configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        return configs;
+    private Rating getRating(Long bookId) {
+        return ratings.stream().filter(rating -> rating.getBookId().equals(bookId)).findFirst().orElseThrow(NoSuchElementException::new);
     }
 
-    @Bean
-    ProducerFactory<String, String> producerFactory() {
-        return new DefaultKafkaProducerFactory<>(producerConfigs());
+    @KafkaListener(groupId = "request", topics = {"books"})
+    @SuppressWarnings("unchecked")
+    public void sendRaiting(byte[] kafkaMsg) throws IOException {
+        BookDTO bookDTO = mapper.readValue(kafkaMsg, BookDTO.class);
+        logger.info("Got message from kafka {}", bookDTO.toString());
+        logger.info("Send rating to kafka topic.");
+        kafkaTemplate.send("rating", getRating(bookDTO.getId()).toString());
     }
-
-    @Bean
-    KafkaTemplate<String, String> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
-    }
-
 }
